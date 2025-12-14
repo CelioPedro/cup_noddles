@@ -3,6 +3,9 @@ package me.dio.copa.catar.domain.model
 typealias TeamDomain = Team
 
 data class Team(
-    val flag: String,
-    val displayName: String
+    val id: String,
+    val name: String,
+    val group: String,
+    val flag_url: String,
+    val ranking: Int
 )

@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "stage": "Group A",
+    "date": "2026-06-11T19:00:00Z",
+    "venue": "Estádio Azteca",
+    "city": "Cidade do México",
+    "team1_id": "MEX",
+    "team2_id": "TBD_A2",
+    "score1": -1,
+    "score2": -1
+  },
+  {
+    "id": 2,
+    "stage": "Group A",
+    "date": "2026-06-11T22:00:00Z",
+    "venue": "Estádio Akron",
+    "city": "Guadalajara",
+    "team1_id": "TBD_A3",
+    "team2_id": "TBD_A4",
+    "score1": -1,
+    "score2": -1
+  },
+  {
+    "id": 3,
+    "stage": "Group B",
+    "date": "2026-06-12T01:00:00Z",
+    "venue": "BMO Field",
+    "city": "Toronto",
+    "team1_id": "CAN",
+    "team2_id": "TBD_B2",
+    "score1": -1,
+    "score2": -1
+  },
+  {
+    "id": 4,
+    "stage": "Group B",
+    "date": "2026-06-12T19:00:00Z",
+    "venue": "BC Place",
+    "city": "Vancouver",
+    "team1_id": "TBD_B3",
+    "team2_id": "TBD_B4",
+    "score1": -1,
+    "score2": -1
+  },
+  {
+    "id": 5,
+    "stage": "Group C",
+    "date": "2026-06-12T22:00:00Z",
+    "venue": "SoFi Stadium",
+    "city": "Los Angeles, CA",
+    "team1_id": "USA",
+    "team2_id": "TBD_C2",
+    "score1": -1,
+    "score2": -1
+  },
+  {
+    "id": 6,
+    "stage": "Group C",
+    "date": "2026-06-13T00:00:00Z",
+    "venue": "MetLife Stadium",
+    "city": "Nova Iorque/Nova Jersey",
+    "team1_id": "TBD_C3",
+    "team2_id": "TBD_C4",
+    "score1": -1,
+    "score2": -1
+  }
+]

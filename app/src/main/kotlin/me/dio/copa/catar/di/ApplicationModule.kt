@@ -7,18 +7,18 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.dio.copa.catar.data.di.DataModule
-import me.dio.copa.catar.local.di.LocalModule
+import me.dio.copa.catar.local.di.LocalBindsModule
+import me.dio.copa.catar.local.di.LocalProvidesModule
 import me.dio.copa.catar.remote.di.NetworkModule
-import me.dio.copa.catar.remote.di.RemoteModule
-import me.dio.copa.catar.remote.di.ServiceModules
+import me.dio.copa.catar.remote.di.RemoteBindsModule
 
 @Module(
     includes = [
         DataModule::class,
-        LocalModule::class,
-        RemoteModule::class,
+        LocalBindsModule::class,
+        LocalProvidesModule::class,
+        RemoteBindsModule::class,
         NetworkModule::class,
-        ServiceModules::class,
     ]
 )
 @InstallIn(SingletonComponent::class)

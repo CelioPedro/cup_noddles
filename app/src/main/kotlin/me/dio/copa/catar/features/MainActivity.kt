@@ -22,7 +22,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             Copa2022Theme {
                 val state by viewModel.state.collectAsState()
-                MainScreen(matches = state.matches, viewModel::toggleNotification)
+                MainScreen(
+                    matches = state.matches,
+                    teams = state.teams,
+                    onToggleNotification = viewModel::toggleNotification
+                )
             }
         }
     }
@@ -34,11 +38,16 @@ class MainActivity : ComponentActivity() {
                 MainUiAction.Unexpected -> TODO()
                 is MainUiAction.DisableNotification ->
                     NotificationMatcherWorker.cancel(applicationContext, action.match)
-                is MainUiAction.EnableNotification ->
-                    NotificationMatcherWorker.start(applicationContext, action.match)
+                is MainUiAction.EnableNotification -> {
+                    val state = viewModel.state.value
+                    val team1 = state.teams.find { it.id == action.match.team1_id }
+                    val team2 = state.teams.find { it.id == action.match.team2_id }
+
+                    if (team1 != null && team2 != null) {
+                        NotificationMatcherWorker.start(applicationContext, action.match, team1, team2)
+                    }
+                }
             }
         }
     }
-
-
 }

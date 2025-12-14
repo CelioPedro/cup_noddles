@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import me.dio.copa.catar.data.source.MatchesDataSource
+import me.dio.copa.catar.domain.source.MatchesDataSource
 import javax.inject.Inject
 
 class MatchDataSourceLocal @Inject constructor(

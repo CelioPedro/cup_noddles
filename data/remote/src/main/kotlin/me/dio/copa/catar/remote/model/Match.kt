@@ -1,20 +1,17 @@
 package me.dio.copa.catar.remote.model
 
-import java.util.Date
+import com.google.gson.annotations.SerializedName
 
-internal typealias MatchRemote = Match
+typealias MatchRemote = Match
 
 data class Match(
-    val name: String,
-    val stadium: Stadium,
-    val team1: String,
-    val team2: String,
-    val date: Date
-)
-
-internal typealias StadiumRemote = Stadium
-
-data class Stadium(
-    val name: String,
-    val image: String
+    @SerializedName("id") val id: Int,
+    @SerializedName("stage") val stage: String,
+    @SerializedName("date") val date: String,
+    @SerializedName("venue") val venue: String,
+    @SerializedName("city") val city: String,
+    @SerializedName("team1_id") val team1Id: String,
+    @SerializedName("team2_id") val team2Id: String,
+    @SerializedName("score1") val score1: Int,
+    @SerializedName("score2") val score2: Int
 )

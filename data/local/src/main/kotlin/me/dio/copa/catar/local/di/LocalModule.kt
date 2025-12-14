@@ -7,21 +7,28 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import me.dio.copa.catar.domain.source.MatchesDataSource
 import me.dio.copa.catar.local.source.MatchDataSourceLocal
-import me.dio.copa.catar.data.source.MatchesDataSource
+import javax.inject.Singleton
 
-private const val PREFERENCES_NAME = "notifications_prefs"
+private val Context.dataStore by preferencesDataStore(name = "settings")
 
 @Module
-interface LocalModule {
+@InstallIn(SingletonComponent::class)
+interface LocalBindsModule {
     @Binds
     fun providesMatchDataSourceLocal(impl: MatchDataSourceLocal): MatchesDataSource.Local
+}
 
-    companion object {
-        private val Context.dataStore by preferencesDataStore(name = PREFERENCES_NAME)
-
-        @Provides
-        fun providesDataStore(context: Context): DataStore<Preferences> =
-            context.dataStore
+@Module
+@InstallIn(SingletonComponent::class)
+object LocalProvidesModule {
+    @Provides
+    @Singleton
+    fun providesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
     }
 }

@@ -2,21 +2,23 @@ package me.dio.copa.catar.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
-import me.dio.copa.catar.domain.model.Match
-import me.dio.copa.catar.data.source.MatchesDataSource
+import kotlinx.coroutines.flow.flow
+import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.repositories.MatchesRepository
+import me.dio.copa.catar.domain.source.MatchesDataSource
 import javax.inject.Inject
 
 class MatchesRepositoryImpl @Inject constructor(
     private val localDataSource: MatchesDataSource.Local,
     private val remoteDataSource: MatchesDataSource.Remote,
 ) : MatchesRepository {
-    override suspend fun getMatches(): Flow<List<Match>> {
-        return flowOf(remoteDataSource.getMatches())
-            .combine(localDataSource.getActiveNotificationIds()) { matches: List<Match>, ids: Set<String> ->
+    override fun getMatches(): Flow<List<MatchDomain>> {
+        val remoteMatchesFlow = flow { emit(remoteDataSource.getMatches()) }
+
+        return remoteMatchesFlow
+            .combine(localDataSource.getActiveNotificationIds()) { matches, ids ->
                 matches.map { match ->
-                    match.copy(notificationEnabled = ids.contains(match.id))
+                    match.copy(notificationEnabled = ids.contains(match.id.toString()))
                 }
             }
     }

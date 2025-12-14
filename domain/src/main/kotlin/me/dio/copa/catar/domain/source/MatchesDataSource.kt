@@ -1,13 +1,13 @@
-package me.dio.copa.catar.data.source
+package me.dio.copa.catar.domain.source
 
 import kotlinx.coroutines.flow.Flow
-import me.dio.copa.catar.remote.model.MatchRemote
-import me.dio.copa.catar.remote.model.TeamRemote
+import me.dio.copa.catar.domain.model.MatchDomain
+import me.dio.copa.catar.domain.model.TeamDomain
 
 sealed interface MatchesDataSource {
     interface Remote : MatchesDataSource {
-        suspend fun getMatches(): List<MatchRemote>
-        suspend fun getTeams(): List<TeamRemote>
+        suspend fun getMatches(): List<MatchDomain>
+        suspend fun getTeams(): List<TeamDomain>
     }
 
     interface Local : MatchesDataSource {
@@ -16,3 +16,4 @@ sealed interface MatchesDataSource {
         suspend fun disableNotificationFor(id: String)
     }
 }
+        
