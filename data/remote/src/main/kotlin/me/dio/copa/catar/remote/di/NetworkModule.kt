@@ -26,7 +26,7 @@ interface RemoteBindsModule {
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BASE_URL = "https://digitalinnovationone.github.io/copa-2022-android/api/"
+    private const val BASE_URL = "https://celiopedro.github.io/cup_noddles/"
 
     @Provides
     @Singleton
