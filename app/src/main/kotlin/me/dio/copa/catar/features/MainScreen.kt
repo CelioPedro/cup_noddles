@@ -1,10 +1,13 @@
 package me.dio.copa.catar.features
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,12 +50,18 @@ fun MainScreen(
             .padding(8.dp)
     ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(matches) { match ->
+            itemsIndexed(matches) { index, match ->
                 val team1 = teams.find { it.id == match.team1_id }
                 val team2 = teams.find { it.id == match.team2_id }
 
                 if (team1 != null && team2 != null) {
-                    MatchInfo(match, team1, team2, onToggleNotification)
+                    val stadiumImage = if (index % 2 == 0) {
+                        R.drawable.lusailstadium
+                    } else {
+                        R.drawable.stadiummm
+                    }
+
+                    MatchInfo(match, team1, team2, stadiumImage, onToggleNotification)
                 }
             }
         }
@@ -65,13 +73,23 @@ fun MatchInfo(
     match: MatchDomain,
     team1: TeamDomain,
     team2: TeamDomain,
+    @DrawableRes stadiumImage: Int,
     onToggleNotification: NotificationOnClick
 ) {
     Card(
         shape = Shapes.large,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
-        Surface(color = MaterialTheme.colors.surface.copy(alpha = 0.5f)) {
+        Box {
+            Image(
+                painter = painterResource(id = stadiumImage),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
+            )
+
             Column(modifier = Modifier.padding(16.dp)) {
                 Notification(match, onToggleNotification)
                 Title(match)
