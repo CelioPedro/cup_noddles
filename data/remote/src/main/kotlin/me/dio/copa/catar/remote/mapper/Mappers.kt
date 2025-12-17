@@ -12,6 +12,7 @@ fun MatchRemote.toDomain(): MatchDomain = MatchDomain(
     stage = stage,
     date = date,
     venue = venue,
+    venue_image_url = venueImageUrl,
     city = city,
     team1_id = team1Id,
     team2_id = team2Id,
