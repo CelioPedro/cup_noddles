@@ -164,7 +164,7 @@ fun TeamItem(team: TeamDomain) {
         Text(
             text = team.name,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.h6.copy(color = Color.White)
+            style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
         )
     }
 }
