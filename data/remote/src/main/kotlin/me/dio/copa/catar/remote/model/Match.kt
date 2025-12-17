@@ -9,6 +9,7 @@ data class Match(
     @SerializedName("stage") val stage: String,
     @SerializedName("date") val date: String,
     @SerializedName("venue") val venue: String,
+    @SerializedName("venue_image_url") val venueImageUrl: String,
     @SerializedName("city") val city: String,
     @SerializedName("team1_id") val team1Id: String,
     @SerializedName("team2_id") val team2Id: String,

@@ -1,11 +1,10 @@
 package me.dio.copa.catar.features
 
-import androidx.annotation.DrawableRes
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -25,10 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
 import me.dio.copa.catar.R
 import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.model.TeamDomain
@@ -50,18 +52,12 @@ fun MainScreen(
             .padding(8.dp)
     ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            itemsIndexed(matches) { index, match ->
+            items(matches) { match ->
                 val team1 = teams.find { it.id == match.team1_id }
                 val team2 = teams.find { it.id == match.team2_id }
 
                 if (team1 != null && team2 != null) {
-                    val stadiumImage = if (index % 2 == 0) {
-                        R.drawable.lusailstadium
-                    } else {
-                        R.drawable.stadiummm
-                    }
-
-                    MatchInfo(match, team1, team2, stadiumImage, onToggleNotification)
+                    MatchInfo(match, team1, team2, onToggleNotification)
                 }
             }
         }
@@ -73,7 +69,6 @@ fun MatchInfo(
     match: MatchDomain,
     team1: TeamDomain,
     team2: TeamDomain,
-    @DrawableRes stadiumImage: Int,
     onToggleNotification: NotificationOnClick
 ) {
     Card(
@@ -83,11 +78,11 @@ fun MatchInfo(
             .height(IntrinsicSize.Min)
     ) {
         Box {
-            Image(
-                painter = painterResource(id = stadiumImage),
+            AsyncImage(
+                model = match.venue_image_url,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.fillMaxSize()
             )
 
             Column(modifier = Modifier.padding(16.dp)) {
@@ -152,10 +147,21 @@ fun Teams(team1: TeamDomain, team2: TeamDomain) {
 
 @Composable
 fun TeamItem(team: TeamDomain) {
+    val imageLoader = ImageLoader.Builder(LocalContext.current)
+        .components {
+            if (SDK_INT >= 28) {
+                add(SvgDecoder.Factory())
+            } else {
+                add(SvgDecoder.Factory())
+            }
+        }
+        .build()
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         AsyncImage(
             model = team.flag_url,
             contentDescription = null,
+            imageLoader = imageLoader,
             modifier = Modifier.size(40.dp)
         )
 
