@@ -9,6 +9,7 @@ fun List<MatchRemote>.toMatchDomain(): List<MatchDomain> = map(MatchRemote::toDo
 
 fun MatchRemote.toDomain(): MatchDomain = MatchDomain(
     id = id,
+    round = round,
     stage = stage,
     date = date,
     venue = venue,

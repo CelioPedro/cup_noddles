@@ -6,6 +6,7 @@ typealias MatchRemote = Match
 
 data class Match(
     @SerializedName("id") val id: Int,
+    @SerializedName("round") val round: Int,
     @SerializedName("stage") val stage: String,
     @SerializedName("date") val date: String,
     @SerializedName("venue") val venue: String,

@@ -4,6 +4,7 @@ typealias MatchDomain = Match
 
 data class Match(
     val id: Int,
+    val round: Int,
     val stage: String,
     val date: String,
     val venue: String,

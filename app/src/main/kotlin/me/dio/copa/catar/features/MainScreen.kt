@@ -18,9 +18,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FilterChip
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,24 +47,47 @@ import java.time.format.DateTimeFormatter
 
 typealias NotificationOnClick = (match: MatchDomain) -> Unit
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen(
     matches: List<MatchDomain>,
     teams: List<TeamDomain>,
     onToggleNotification: NotificationOnClick
 ) {
+    var selectedRound by remember { mutableStateOf(1) }
+    val rounds = listOf("Rodada 1", "Rodada 2", "Rodada 3")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(matches) { match ->
-                val team1 = teams.find { it.id == match.team1_id }
-                val team2 = teams.find { it.id == match.team2_id }
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                rounds.forEachIndexed { index, round ->
+                    FilterChip(
+                        selected = selectedRound == index + 1,
+                        onClick = { selectedRound = index + 1 },
+                        ) {
+                        Text(text = round)
+                    }
+                }
+            }
 
-                if (team1 != null && team2 != null) {
-                    MatchInfo(match, team1, team2, onToggleNotification)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val filteredMatches = matches.filter { it.round == selectedRound }
+                items(filteredMatches) { match ->
+                    val team1 = teams.find { it.id == match.team1_id }
+                    val team2 = teams.find { it.id == match.team2_id }
+
+                    if (team1 != null && team2 != null) {
+                        MatchInfo(match, team1, team2, onToggleNotification)
+                    }
                 }
             }
         }
