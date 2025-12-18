@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
@@ -55,7 +56,10 @@ fun MainScreen(
     onToggleNotification: NotificationOnClick
 ) {
     var selectedRound by remember { mutableStateOf(1) }
-    val rounds = listOf("Rodada 1", "Rodada 2", "Rodada 3")
+    val rounds = listOf(
+        "Rodada 1", "Rodada 2", "Rodada 3", "16 avos",
+        "Oitavas", "Quartas", "Semi", "Final"
+    )
 
     Box(
         modifier = Modifier
@@ -63,15 +67,16 @@ fun MainScreen(
             .padding(8.dp)
     ) {
         Column {
-            Row(
+            LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                rounds.forEachIndexed { index, round ->
+                items(rounds) { round ->
+                    val roundNumber = rounds.indexOf(round) + 1
                     FilterChip(
-                        selected = selectedRound == index + 1,
-                        onClick = { selectedRound = index + 1 },
-                        ) {
+                        selected = selectedRound == roundNumber,
+                        onClick = { selectedRound = roundNumber },
+                    ) {
                         Text(text = round)
                     }
                 }
