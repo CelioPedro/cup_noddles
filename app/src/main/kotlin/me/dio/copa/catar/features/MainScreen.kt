@@ -2,6 +2,7 @@ package me.dio.copa.catar.features
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,6 +84,12 @@ fun MatchInfo(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
             )
 
             Column(modifier = Modifier.padding(16.dp)) {
