@@ -24,10 +24,6 @@ import androidx.compose.material.FilterChip
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,14 +44,17 @@ import java.time.format.DateTimeFormatter
 
 typealias NotificationOnClick = (match: MatchDomain) -> Unit
 
+typealias RoundOnClick = (round: Int) -> Unit
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen(
     matches: List<MatchDomain>,
     teams: List<TeamDomain>,
-    onToggleNotification: NotificationOnClick
+    selectedRound: Int,
+    onToggleNotification: NotificationOnClick,
+    onSelectRound: RoundOnClick,
 ) {
-    var selectedRound by remember { mutableStateOf(1) }
     val rounds = listOf(
         "Rodada 1", "Rodada 2", "Rodada 3", "16 avos",
         "Oitavas", "Quartas", "Semi", "Final"
@@ -75,7 +74,7 @@ fun MainScreen(
                     val roundNumber = rounds.indexOf(round) + 1
                     FilterChip(
                         selected = selectedRound == roundNumber,
-                        onClick = { selectedRound = roundNumber },
+                        onClick = { onSelectRound(roundNumber) },
                     ) {
                         Text(text = round)
                     }
@@ -85,14 +84,24 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val filteredMatches = matches.filter { it.round == selectedRound }
-                items(filteredMatches) { match ->
-                    val team1 = teams.find { it.id == match.team1_id }
-                    val team2 = teams.find { it.id == match.team2_id }
+                items(matches) { match ->
+                    val team1 = teams.find { it.id == match.team1_id } ?: TeamDomain(
+                        id = match.team1_id,
+                        name = match.team1_id, 
+                        flag_url = "",
+                        group = "",
+                        ranking = -1
+                    )
 
-                    if (team1 != null && team2 != null) {
-                        MatchInfo(match, team1, team2, onToggleNotification)
-                    }
+                    val team2 = teams.find { it.id == match.team2_id } ?: TeamDomain(
+                        id = match.team2_id,
+                        name = match.team2_id, 
+                        flag_url = "",
+                        group = "",
+                        ranking = -1
+                    )
+
+                    MatchInfo(match, team1, team2, onToggleNotification)
                 }
             }
         }
@@ -199,14 +208,16 @@ fun TeamItem(team: TeamDomain) {
         .build()
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-        AsyncImage(
-            model = team.flag_url,
-            contentDescription = null,
-            imageLoader = imageLoader,
-            modifier = Modifier.size(40.dp)
-        )
+        if (team.flag_url.isNotBlank()) {
+            AsyncImage(
+                model = team.flag_url,
+                contentDescription = null,
+                imageLoader = imageLoader,
+                modifier = Modifier.size(40.dp)
+            )
 
-        Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.size(16.dp))
+        }
 
         Text(
             text = team.name,

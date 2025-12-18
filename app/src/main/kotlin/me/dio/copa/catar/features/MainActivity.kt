@@ -25,7 +25,9 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     matches = state.matches,
                     teams = state.teams,
-                    onToggleNotification = viewModel::toggleNotification
+                    selectedRound = state.selectedRound,
+                    onToggleNotification = viewModel::toggleNotification,
+                    onSelectRound = viewModel::selectRound
                 )
             }
         }
