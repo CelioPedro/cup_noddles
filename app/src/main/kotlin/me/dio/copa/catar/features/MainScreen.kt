@@ -52,6 +52,7 @@ fun MainScreen(
     matches: List<MatchDomain>,
     teams: List<TeamDomain>,
     selectedRound: Int,
+    favoriteTeamMatch: MatchDomain?,
     onToggleNotification: NotificationOnClick,
     onSelectRound: RoundOnClick,
 ) {
@@ -66,6 +67,21 @@ fun MainScreen(
             .padding(8.dp)
     ) {
         Column {
+            favoriteTeamMatch?.let { match ->
+                val team1 = teams.find { it.id == match.team1_id }
+                val team2 = teams.find { it.id == match.team2_id }
+
+                if (team1 != null && team2 != null) {
+                    Text(
+                        text = "Próximo Jogo do seu Time",
+                        style = MaterialTheme.typography.h6,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    MatchInfo(match, team1, team2, onToggleNotification)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

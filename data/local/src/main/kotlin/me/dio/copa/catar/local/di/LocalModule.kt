@@ -10,7 +10,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import me.dio.copa.catar.domain.source.BettingDataSource
 import me.dio.copa.catar.domain.source.MatchesDataSource
+import me.dio.copa.catar.local.source.BettingDataSourceLocal
 import me.dio.copa.catar.local.source.MatchDataSourceLocal
 import javax.inject.Singleton
 
@@ -21,6 +23,9 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 interface LocalBindsModule {
     @Binds
     fun providesMatchDataSourceLocal(impl: MatchDataSourceLocal): MatchesDataSource.Local
+
+    @Binds
+    fun providesBettingDataSourceLocal(impl: BettingDataSourceLocal): BettingDataSource.Local
 }
 
 @Module

@@ -11,20 +11,24 @@ import kotlinx.coroutines.launch
 import me.dio.copa.catar.core.BaseViewModel
 import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.model.TeamDomain
+import me.dio.copa.catar.domain.repositories.MatchesRepository
 import me.dio.copa.catar.domain.usecase.DisableNotificationUseCase
 import me.dio.copa.catar.domain.usecase.EnableNotificationUseCase
-import me.dio.copa.catar.domain.usecase.GetMatchesUseCase
 import me.dio.copa.catar.domain.usecase.GetTeamsUseCase
+import me.dio.copa.catar.local.source.PreferencesManager
 import me.dio.copa.catar.remote.NotFoundException
 import me.dio.copa.catar.remote.UnexpectedException
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getMatchesUseCase: GetMatchesUseCase,
+    private val repository: MatchesRepository,
     private val getTeamsUseCase: GetTeamsUseCase,
     private val disableNotificationUseCase: DisableNotificationUseCase,
     private val enableNotificationUseCase: EnableNotificationUseCase,
+    private val preferencesManager: PreferencesManager
 ) : BaseViewModel<MainUiState, MainUiAction>(MainUiState()) {
 
     private val _selectedRound = MutableStateFlow(1)
@@ -39,10 +43,13 @@ class MainViewModel @Inject constructor(
     }
 
     private fun fetchData() = viewModelScope.launch {
+        repository.fetchAndSaveMatches()
+
         val teamsFlow = getTeamsUseCase()
+        val favoriteTeamId = preferencesManager.getFavoriteTeamId()
 
         combine(
-            getMatchesUseCase(),
+            repository.getMatches(),
             teamsFlow,
             _selectedRound
         ) { allMatches, teams, selectedRound ->
@@ -55,17 +62,28 @@ class MainViewModel @Inject constructor(
                 else -> allMatches.filter { it.round == selectedRound }
             }
 
+            val favoriteTeamMatch = if (favoriteTeamId != null) {
+                allMatches.filter { it.team1_id == favoriteTeamId || it.team2_id == favoriteTeamId }
+                    .firstOrNull { match ->
+                        val matchTime = LocalDateTime.parse(match.date).atZone(ZoneId.systemDefault())
+                        matchTime.isAfter(LocalDateTime.now().atZone(ZoneId.systemDefault()))
+                    }
+            } else {
+                null
+            }
+
             MainUiState(
                 matches = filteredMatches,
                 teams = teams,
-                selectedRound = selectedRound
+                selectedRound = selectedRound,
+                favoriteTeamMatch = favoriteTeamMatch
             )
         }
             .flowOn(Dispatchers.Main)
-            .catch {
-                when (it) {
+            .catch { exception ->
+                when (exception) {
                     is NotFoundException ->
-                        sendAction(MainUiAction.MatchesNotFound(it.message ?: "Erro sem mensagem"))
+                        sendAction(MainUiAction.MatchesNotFound(exception.message ?: "Erro sem mensagem"))
 
                     is UnexpectedException ->
                         sendAction(MainUiAction.Unexpected)
@@ -99,7 +117,8 @@ class MainViewModel @Inject constructor(
 data class MainUiState(
     val matches: List<MatchDomain> = emptyList(),
     val teams: List<TeamDomain> = emptyList(),
-    val selectedRound: Int = 1
+    val selectedRound: Int = 1,
+    val favoriteTeamMatch: MatchDomain? = null
 )
 
 sealed interface MainUiAction {

@@ -10,14 +10,14 @@ import me.dio.copa.catar.data.di.DataModule
 import me.dio.copa.catar.local.di.LocalBindsModule
 import me.dio.copa.catar.local.di.LocalProvidesModule
 import me.dio.copa.catar.remote.di.NetworkModule
-import me.dio.copa.catar.remote.di.RemoteBindsModule
+import me.dio.copa.catar.remote.di.RemoteModule
 
 @Module(
     includes = [
         DataModule::class,
         LocalBindsModule::class,
         LocalProvidesModule::class,
-        RemoteBindsModule::class,
+        RemoteModule::class,
         NetworkModule::class,
     ]
 )

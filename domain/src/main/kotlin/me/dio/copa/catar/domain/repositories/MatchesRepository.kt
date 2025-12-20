@@ -5,6 +5,7 @@ import me.dio.copa.catar.domain.model.MatchDomain
 
 interface MatchesRepository {
     fun getMatches(): Flow<List<MatchDomain>>
+    suspend fun fetchAndSaveMatches()
     suspend fun enableNotificationFor(id: String)
     suspend fun disableNotificationFor(id: String)
 }
