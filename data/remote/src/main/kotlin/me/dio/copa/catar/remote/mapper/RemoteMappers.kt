@@ -31,6 +31,6 @@ fun TeamDto.toDomain() = Team(
     id = id,
     name = name ?: "",
     group = group ?: "",
-    flag_url = flagUrl ?: "",
+    flag_url = flag_url ?: "", // Corrigido para usar o nome correto da propriedade
     ranking = ranking ?: 0
 )

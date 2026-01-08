@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
@@ -68,18 +69,6 @@ fun MainScreen(
             .padding(8.dp)
     ) {
         Column {
-
-            // --- PAINEL DE DEPURAÇÃO DEFINITIVO ---
-            Text(text = "Partidas Recebidas: ${matches.size}", color = Color.Yellow)
-            Text(text = "Times Recebidos: ${teams.size}", color = Color.Yellow)
-            matches.firstOrNull()?.let {
-                Text(text = "ID Time 1 (Partida 0): '${it.team1_id}'", color = Color.Cyan)
-                Text(text = "ID Time 2 (Partida 0): '${it.team2_id}'", color = Color.Cyan)
-            }
-            val firstFiveTeamIds = teams.take(5).joinToString(", ") { "'${it.id}'" }
-            Text(text = "IDs dos 5 primeiros times: $firstFiveTeamIds", color = Color.Magenta)
-            // -------------------------------------
-
             error?.let {
                 Text(
                     text = it,
@@ -191,9 +180,7 @@ fun Notification(match: MatchDomain, onClick: NotificationOnClick) {
 
         Image(
             painter = painterResource(id = drawable),
-            modifier = Modifier.clickable {
-                onClick(match)
-            },
+            modifier = Modifier.clickable { onClick(match) },
             contentDescription = null
         )
     }
@@ -226,7 +213,7 @@ fun Teams(team1: TeamDomain, team2: TeamDomain) {
 
         Text(
             text = "X",
-            modifier = Modifier.padding(end = 16.dp, start = 16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             style = MaterialTheme.typography.h6.copy(color = Color.White)
         )
 
@@ -237,27 +224,19 @@ fun Teams(team1: TeamDomain, team2: TeamDomain) {
 @Composable
 fun TeamItem(team: TeamDomain) {
     val imageLoader = ImageLoader.Builder(LocalContext.current)
-        .components {
-            if (SDK_INT >= 28) {
-                add(SvgDecoder.Factory())
-            } else {
-                add(SvgDecoder.Factory())
-            }
-        }
+        .components { add(SvgDecoder.Factory()) }
         .build()
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-        if (team.flag_url.isNotBlank()) {
-            AsyncImage(
-                model = team.flag_url,
-                contentDescription = null,
-                imageLoader = imageLoader,
-                modifier = Modifier.size(40.dp)
-            )
+        AsyncImage(
+            model = team.flag_url,
+            contentDescription = "Bandeira do ${team.name}",
+            imageLoader = imageLoader,
+            modifier = Modifier.size(40.dp)
+        )
 
-            Spacer(modifier = Modifier.size(16.dp))
-        }
-
+        Spacer(modifier = Modifier.size(16.dp))
+        
         Text(
             text = team.name,
             textAlign = TextAlign.Center,

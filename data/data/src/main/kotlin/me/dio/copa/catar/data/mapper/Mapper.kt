@@ -8,7 +8,6 @@ import me.dio.copa.catar.domain.model.Match
 import me.dio.copa.catar.domain.model.Team
 import kotlin.jvm.JvmName
 
-// DTO para Entidade: Apenas converte os tipos, tratando nulos com valores padrão.
 fun MatchDto.toEntity() = MatchEntity(
     id = id,
     round = round ?: 0,
@@ -17,8 +16,8 @@ fun MatchDto.toEntity() = MatchEntity(
     venue = venue ?: "",
     venueImageUrl = venueImageUrl ?: "",
     city = city ?: "",
-    team1Id = team1_id ?: "", // Corrigido para usar o nome correto da propriedade
-    team2Id = team2_id ?: "", // Corrigido para usar o nome correto da propriedade
+    team1Id = team1_id ?: "", // Corrigido
+    team2Id = team2_id ?: "", // Corrigido
     score1 = score1 ?: -1, 
     score2 = score2 ?: -1
 )
@@ -27,11 +26,10 @@ fun TeamDto.toEntity() = TeamEntity(
     id = id,
     name = name ?: "",
     group = group ?: "",
-    flagUrl = flagUrl ?: "",
+    flagUrl = flag_url ?: "", // Corrigido
     ranking = ranking ?: 0
 )
 
-// Entidade para Domínio: Uma conversão direta. A UI é responsável por lidar com os dados.
 fun MatchEntity.toDomain() = Match(
     id = id,
     round = round,
@@ -55,7 +53,6 @@ fun TeamEntity.toDomain() = Team(
     ranking = ranking
 )
 
-// Revertido para um map simples, sem descartar nenhuma partida.
 @JvmName("matchEntityToDomain")
 fun List<MatchEntity>.toDomain(): List<Match> = map { it.toDomain() }
 
