@@ -1,39 +1,30 @@
 package me.dio.copa.catar.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import me.dio.copa.catar.domain.model.Match
+import kotlinx.coroutines.flow.map
+import me.dio.copa.catar.data.mapper.toDomain
+import me.dio.copa.catar.data.mapper.toEntity
+import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.repositories.MatchesRepository
-import me.dio.copa.catar.domain.source.MatchesDataSource
+import me.dio.copa.catar.local.dao.MatchDao
+import me.dio.copa.catar.remote.CopaApi
 import javax.inject.Inject
 
 class MatchesRepositoryImpl @Inject constructor(
-    private val localDataSource: MatchesDataSource.Local,
-    private val remoteDataSource: MatchesDataSource.Remote,
+    private val dao: MatchDao,
+    private val api: CopaApi
 ) : MatchesRepository {
+    override fun getMatches(): Flow<List<MatchDomain>> = dao.getMatches().map { it.toDomain() }
 
-    override fun getMatches(): Flow<List<Match>> {
-        return localDataSource.getMatches().combine(localDataSource.getActiveNotificationIds()) { matches, activeIds ->
-            matches.map {
-                it.copy(notificationEnabled = activeIds.contains(it.id.toString()))
-            }
+    override suspend fun toggleNotification(matchId: Int) {
+        val match = dao.getMatch(matchId)
+        dao.setNotificationEnabled(matchId, !match.notificationEnabled)
+    }
+
+    override suspend fun sync() {
+        runCatching {
+            val remoteMatches = api.getMatches()
+            dao.insertAll(remoteMatches.map { it.toEntity() })
         }
-    }
-
-    override suspend fun fetchAndSaveMatches() {
-        val isCacheEmpty = localDataSource.getMatches().first().isEmpty()
-        if (isCacheEmpty) {
-            val remoteMatches = remoteDataSource.getMatches()
-            localDataSource.save(remoteMatches)
-        }
-    }
-
-    override suspend fun enableNotificationFor(id: String) {
-        localDataSource.enableNotificationFor(id)
-    }
-
-    override suspend fun disableNotificationFor(id: String) {
-        localDataSource.disableNotificationFor(id)
     }
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.model.TeamDomain
+import me.dio.copa.catar.domain.repositories.MatchesRepository
 import me.dio.copa.catar.domain.usecase.GetBetsUseCase
 import me.dio.copa.catar.domain.usecase.GetMatchesUseCase
 import me.dio.copa.catar.domain.usecase.GetTeamsUseCase
@@ -21,7 +22,7 @@ class BettingViewModel @Inject constructor(
     private val getMatchesUseCase: GetMatchesUseCase,
     private val getTeamsUseCase: GetTeamsUseCase,
     private val getBetsUseCase: GetBetsUseCase,
-    private val saveBetUseCase: SaveBetUseCase
+    private val saveBetUseCase: SaveBetUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BettingUiState())

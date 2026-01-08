@@ -5,4 +5,5 @@ import me.dio.copa.catar.domain.model.TeamDomain
 
 interface TeamsRepository {
     fun getTeams(): Flow<List<TeamDomain>>
+    suspend fun sync()
 }

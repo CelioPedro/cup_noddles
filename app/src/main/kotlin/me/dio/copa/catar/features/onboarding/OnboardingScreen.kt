@@ -20,7 +20,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import me.dio.copa.catar.domain.model.Team
 
 @Composable
 fun OnboardingScreen(
@@ -42,22 +44,20 @@ fun OnboardingScreen(
             style = MaterialTheme.typography.h5
         )
 
+        uiState.error?.let {
+            Text(
+                text = it,
+                color = Color.Red,
+                style = MaterialTheme.typography.body2
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(uiState.teams) { team ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { viewModel.selectTeam(team.id) }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = team.id == uiState.selectedTeamId,
-                        onClick = { viewModel.selectTeam(team.id) }
-                    )
-                    Text(text = team.name, modifier = Modifier.padding(start = 8.dp))
+            items(uiState.teams, key = { team -> team.id }) { team ->
+                TeamItem(team = team, selected = team.id == uiState.selectedTeamId) {
+                    viewModel.selectTeam(team.id)
                 }
             }
         }
@@ -73,5 +73,19 @@ fun OnboardingScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun TeamItem(team: Team, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+        Text(text = team.name, modifier = Modifier.padding(start = 8.dp))
     }
 }

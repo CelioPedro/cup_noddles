@@ -55,6 +55,7 @@ fun MainScreen(
     favoriteTeamMatch: MatchDomain?,
     onToggleNotification: NotificationOnClick,
     onSelectRound: RoundOnClick,
+    error: String?
 ) {
     val rounds = listOf(
         "Rodada 1", "Rodada 2", "Rodada 3", "16 avos",
@@ -67,9 +68,31 @@ fun MainScreen(
             .padding(8.dp)
     ) {
         Column {
+
+            // --- PAINEL DE DEPURAÇÃO DEFINITIVO ---
+            Text(text = "Partidas Recebidas: ${matches.size}", color = Color.Yellow)
+            Text(text = "Times Recebidos: ${teams.size}", color = Color.Yellow)
+            matches.firstOrNull()?.let {
+                Text(text = "ID Time 1 (Partida 0): '${it.team1_id}'", color = Color.Cyan)
+                Text(text = "ID Time 2 (Partida 0): '${it.team2_id}'", color = Color.Cyan)
+            }
+            val firstFiveTeamIds = teams.take(5).joinToString(", ") { "'${it.id}'" }
+            Text(text = "IDs dos 5 primeiros times: $firstFiveTeamIds", color = Color.Magenta)
+            // -------------------------------------
+
+            error?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.h6,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
             favoriteTeamMatch?.let { match ->
-                val team1 = teams.find { it.id == match.team1_id }
-                val team2 = teams.find { it.id == match.team2_id }
+                val team1 = teams.find { it.id.trim().uppercase() == match.team1_id.trim().uppercase() }
+                val team2 = teams.find { it.id.trim().uppercase() == match.team2_id.trim().uppercase() }
 
                 if (team1 != null && team2 != null) {
                     Text(
@@ -101,7 +124,7 @@ fun MainScreen(
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(matches) { match ->
-                    val team1 = teams.find { it.id == match.team1_id } ?: TeamDomain(
+                    val team1 = teams.find { it.id.trim().uppercase() == match.team1_id.trim().uppercase() } ?: TeamDomain(
                         id = match.team1_id,
                         name = match.team1_id, 
                         flag_url = "",
@@ -109,7 +132,7 @@ fun MainScreen(
                         ranking = -1
                     )
 
-                    val team2 = teams.find { it.id == match.team2_id } ?: TeamDomain(
+                    val team2 = teams.find { it.id.trim().uppercase() == match.team2_id.trim().uppercase() } ?: TeamDomain(
                         id = match.team2_id,
                         name = match.team2_id, 
                         flag_url = "",
@@ -179,14 +202,14 @@ fun Notification(match: MatchDomain, onClick: NotificationOnClick) {
 @Composable
 fun Title(match: MatchDomain) {
     val dateFormatter = DateTimeFormatter.ofPattern("dd/MM HH:mm")
-    val date = LocalDateTime.parse(match.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    val date = match.date.takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME) }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "${date.format(dateFormatter)} - ${match.stage}",
+            text = date?.let { "${it.format(dateFormatter)} - ${match.stage}" } ?: "Data inválida",
             style = MaterialTheme.typography.h6.copy(color = Color.White)
         )
     }

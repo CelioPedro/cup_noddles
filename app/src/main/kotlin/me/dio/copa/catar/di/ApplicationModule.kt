@@ -9,7 +9,6 @@ import dagger.hilt.components.SingletonComponent
 import me.dio.copa.catar.data.di.DataModule
 import me.dio.copa.catar.local.di.LocalBindsModule
 import me.dio.copa.catar.local.di.LocalProvidesModule
-import me.dio.copa.catar.remote.di.NetworkModule
 import me.dio.copa.catar.remote.di.RemoteModule
 
 @Module(
@@ -18,7 +17,6 @@ import me.dio.copa.catar.remote.di.RemoteModule
         LocalBindsModule::class,
         LocalProvidesModule::class,
         RemoteModule::class,
-        NetworkModule::class,
     ]
 )
 @InstallIn(SingletonComponent::class)

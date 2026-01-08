@@ -79,15 +79,17 @@ class MainActivity : ComponentActivity() {
             when (action) {
                 is MainUiAction.MatchesNotFound -> TODO()
                 MainUiAction.Unexpected -> TODO()
-                is MainUiAction.DisableNotification ->
-                    NotificationMatcherWorker.cancel(applicationContext, action.match)
-                is MainUiAction.EnableNotification -> {
-                    val state = mainViewModel.state.value
-                    val team1 = state.teams.find { it.id == action.match.team1_id }
-                    val team2 = state.teams.find { it.id == action.match.team2_id }
+                is MainUiAction.ToggleNotification -> {
+                    if (action.match.notificationEnabled) {
+                        NotificationMatcherWorker.cancel(applicationContext, action.match)
+                    } else {
+                        val state = mainViewModel.state.value
+                        val team1 = state.teams.find { it.id == action.match.team1_id }
+                        val team2 = state.teams.find { it.id == action.match.team2_id }
 
-                    if (team1 != null && team2 != null) {
-                        NotificationMatcherWorker.start(applicationContext, action.match, team1, team2)
+                        if (team1 != null && team2 != null) {
+                            NotificationMatcherWorker.start(applicationContext, action.match, team1, team2)
+                        }
                     }
                 }
             }
@@ -99,6 +101,7 @@ class MainActivity : ComponentActivity() {
 private fun AppNavigation(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val items = listOf(Screen.Home, Screen.Betting)
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -124,14 +127,14 @@ private fun AppNavigation(viewModel: MainViewModel) {
     ) { innerPadding ->
         NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(innerPadding)) {
             composable(Screen.Home.route) {
-                val state by viewModel.state.collectAsState()
                 MainScreen(
                     matches = state.matches,
                     teams = state.teams,
                     selectedRound = state.selectedRound,
                     favoriteTeamMatch = state.favoriteTeamMatch,
                     onToggleNotification = viewModel::toggleNotification,
-                    onSelectRound = viewModel::selectRound
+                    onSelectRound = viewModel::selectRound,
+                    error = state.error
                 )
             }
             composable(Screen.Betting.route) {

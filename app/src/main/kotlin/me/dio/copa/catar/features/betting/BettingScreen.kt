@@ -1,5 +1,7 @@
 package me.dio.copa.catar.features.betting
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,11 +29,19 @@ import me.dio.copa.catar.domain.model.TeamDomain
 @Composable
 fun BettingScreen(viewModel: BettingViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
+    val totalPoints = uiState.matches.sumOf { match ->
+        val bet = uiState.bets[match.id.toString()]
+        getPoints(match, bet)
+    }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.padding(16.dp)
     ) {
+        item {
+            Text(text = "Total de pontos: $totalPoints")
+        }
+
         val matches = uiState.matches
         items(
             count = matches.size,
@@ -50,30 +60,45 @@ fun BettingScreen(viewModel: BettingViewModel = hiltViewModel()) {
                     bet = bet,
                     onBetChanged = { score1, score2 ->
                         viewModel.onBetChanged(match.id.toString(), score1, score2)
-                    }
+                    },
+                    onLongClick = {}
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BettingMatchItem(
     match: MatchDomain,
     team1: TeamDomain,
     team2: TeamDomain,
     bet: Pair<String, String>?,
-    onBetChanged: (score1: String, score2: String) -> Unit
+    onBetChanged: (score1: String, score2: String) -> Unit,
+    onLongClick: () -> Unit
 ) {
     val score1 = bet?.first ?: ""
     val score2 = bet?.second ?: ""
+    val points = getPoints(match, bet)
 
-    Card {
+    Card(
+        modifier = Modifier.combinedClickable(
+            onLongClick = onLongClick,
+            onClick = {}
+        )
+    ) {
         Column(Modifier.padding(16.dp)) {
-            Text(
-                text = "${match.date} - ${match.stage}",
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "${match.date} - ${match.stage}")
+                if (points > 0) {
+                    Text(text = " ($points pontos)")
+                }
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,6 +122,47 @@ fun BettingMatchItem(
                 )
                 Text(text = team2.name, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
             }
+
+            if (match.score1 != null && match.score2 != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "Placar: ${match.score1} X ${match.score2}")
+                }
+            }
         }
     }
+}
+
+private fun getPoints(match: MatchDomain, bet: Pair<String, String>?): Int {
+    val (bet1, bet2) = bet?.first?.toIntOrNull() to bet?.second?.toIntOrNull()
+    val (score1, score2) = match.score1 to match.score2
+
+    if (score1 == null || score2 == null) return 0
+    if (bet1 == null || bet2 == null) return 0
+
+    if (bet1 == score1 && bet2 == score2) {
+        return 3
+    }
+
+    val matchResult = when {
+        score1 > score2 -> 1
+        score1 < score2 -> 2
+        else -> 0
+    }
+
+    val betResult = when {
+        bet1 > bet2 -> 1
+        bet1 < bet2 -> 2
+        else -> 0
+    }
+
+    if (matchResult == betResult) {
+        return 1
+    }
+
+    return 0
 }

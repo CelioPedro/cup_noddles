@@ -12,7 +12,7 @@ data class Match(
     val city: String,
     val team1_id: String,
     val team2_id: String,
-    val score1: Int,
-    val score2: Int,
+    val score1: Int?,
+    val score2: Int?,
     val notificationEnabled: Boolean = false
 )
