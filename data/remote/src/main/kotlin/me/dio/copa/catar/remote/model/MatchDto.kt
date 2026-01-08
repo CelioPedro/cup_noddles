@@ -10,8 +10,8 @@ data class MatchDto(
     @field:Json(name = "venue") val venue: String?,
     @field:Json(name = "venue_image_url") val venueImageUrl: String?,
     @field:Json(name = "city") val city: String?,
-    @field:Json(name = "team1_id") val team1Id: String, // Voltando para não-nulo
-    @field:Json(name = "team2_id") val team2Id: String, // Voltando para não-nulo
+    @field:Json(name = "team1_id") val team1_id: String?, // Corrigido para corresponder ao JSON
+    @field:Json(name = "team2_id") val team2_id: String?, // Corrigido para corresponder ao JSON
     @field:Json(name = "score1") val score1: Int?,
     @field:Json(name = "score2") val score2: Int?
 )

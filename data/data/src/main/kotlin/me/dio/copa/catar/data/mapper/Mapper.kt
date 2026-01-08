@@ -17,8 +17,8 @@ fun MatchDto.toEntity() = MatchEntity(
     venue = venue ?: "",
     venueImageUrl = venueImageUrl ?: "",
     city = city ?: "",
-    team1Id = team1Id ?: "",
-    team2Id = team2Id ?: "",
+    team1Id = team1_id ?: "", // Corrigido para usar o nome correto da propriedade
+    team2Id = team2_id ?: "", // Corrigido para usar o nome correto da propriedade
     score1 = score1 ?: -1, 
     score2 = score2 ?: -1
 )
