@@ -12,10 +12,11 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Copa 2022"
+
+rootProject.name = "Copa 2026"
 include ':app'
-include ':domain'
 include ':data:data'
-include ':data:remote'
 include ':data:local'
+include ':data:remote'
+include ':domain'
 include ':notification-scheduler'
