@@ -1,246 +1,50 @@
 package me.dio.copa.catar.features
 
-import android.os.Build.VERSION.SDK_INT
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FilterChip
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.ImageLoader
-import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
-import me.dio.copa.catar.R
-import me.dio.copa.catar.domain.model.MatchDomain
-import me.dio.copa.catar.domain.model.TeamDomain
-import me.dio.copa.catar.ui.theme.Shapes
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import me.dio.copa.catar.ui.components.AppBottomNavigation
+import me.dio.copa.catar.ui.navigation.NavigationItem
 
-typealias NotificationOnClick = (match: MatchDomain) -> Unit
-
-typealias RoundOnClick = (round: Int) -> Unit
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainScreen(
-    matches: List<MatchDomain>,
-    teams: List<TeamDomain>,
-    selectedRound: Int,
-    favoriteTeamMatch: MatchDomain?,
-    onToggleNotification: NotificationOnClick,
-    onSelectRound: RoundOnClick,
-    error: String?
-) {
-    val rounds = listOf(
-        "Rodada 1", "Rodada 2", "Rodada 3", "16 avos",
-        "Oitavas", "Quartas", "Semi", "Final"
-    )
+fun MainScreen() {
+    val navController = rememberNavController()
+    val viewModel: MainViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        Column {
-            error?.let {
-                Text(
-                    text = it,
-                    color = Color.Red,
-                    style = MaterialTheme.typography.h6,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
+    Scaffold(
+        bottomBar = { AppBottomNavigation(navController = navController) }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = NavigationItem.Home.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(NavigationItem.Home.route) {
+                HomeScreen(viewModel = viewModel)
+            }
+            composable(NavigationItem.Rounds.route) {
+                RoundsScreen(
+                    matches = state.matches,
+                    teams = state.teams,
+                    selectedRound = state.selectedRound,
+                    onSelectRound = viewModel::selectRound,
+                    onToggleNotification = viewModel::toggleNotification
                 )
             }
-
-            favoriteTeamMatch?.let { match ->
-                val team1 = teams.find { it.id.trim().uppercase() == match.team1_id.trim().uppercase() }
-                val team2 = teams.find { it.id.trim().uppercase() == match.team2_id.trim().uppercase() }
-
-                if (team1 != null && team2 != null) {
-                    Text(
-                        text = "Próximo Jogo do seu Time",
-                        style = MaterialTheme.typography.h6,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    MatchInfo(match, team1, team2, onToggleNotification)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+            composable(NavigationItem.Betting.route) {
+                BettingScreen()
             }
-
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(rounds) { round ->
-                    val roundNumber = rounds.indexOf(round) + 1
-                    FilterChip(
-                        selected = selectedRound == roundNumber,
-                        onClick = { onSelectRound(roundNumber) },
-                    ) {
-                        Text(text = round)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(matches) { match ->
-                    val team1 = teams.find { it.id.trim().uppercase() == match.team1_id.trim().uppercase() } ?: TeamDomain(
-                        id = match.team1_id,
-                        name = match.team1_id, 
-                        flag_url = "",
-                        group = "",
-                        ranking = -1
-                    )
-
-                    val team2 = teams.find { it.id.trim().uppercase() == match.team2_id.trim().uppercase() } ?: TeamDomain(
-                        id = match.team2_id,
-                        name = match.team2_id, 
-                        flag_url = "",
-                        group = "",
-                        ranking = -1
-                    )
-
-                    MatchInfo(match, team1, team2, onToggleNotification)
-                }
+            composable(NavigationItem.Profile.route) {
+                ProfileScreen()
             }
         }
-    }
-}
-
-@Composable
-fun MatchInfo(
-    match: MatchDomain,
-    team1: TeamDomain,
-    team2: TeamDomain,
-    onToggleNotification: NotificationOnClick
-) {
-    Card(
-        shape = Shapes.large,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-    ) {
-        Box {
-            AsyncImage(
-                model = match.venue_image_url,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            )
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                Notification(match, onToggleNotification)
-                Title(match)
-                Teams(team1, team2)
-            }
-        }
-    }
-}
-
-@Composable
-fun Notification(match: MatchDomain, onClick: NotificationOnClick) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        val drawable = if (match.notificationEnabled) R.drawable.ic_notifications_active
-        else R.drawable.ic_notifications
-
-        Image(
-            painter = painterResource(id = drawable),
-            modifier = Modifier.clickable { onClick(match) },
-            contentDescription = null
-        )
-    }
-}
-
-@Composable
-fun Title(match: MatchDomain) {
-    val dateFormatter = DateTimeFormatter.ofPattern("dd/MM HH:mm")
-    val date = match.date.takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME) }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = date?.let { "${it.format(dateFormatter)} - ${match.stage}" } ?: "Data inválida",
-            style = MaterialTheme.typography.h6.copy(color = Color.White)
-        )
-    }
-}
-
-@Composable
-fun Teams(team1: TeamDomain, team2: TeamDomain) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TeamItem(team = team1)
-
-        Text(
-            text = "X",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            style = MaterialTheme.typography.h6.copy(color = Color.White)
-        )
-
-        TeamItem(team = team2)
-    }
-}
-
-@Composable
-fun TeamItem(team: TeamDomain) {
-    val imageLoader = ImageLoader.Builder(LocalContext.current)
-        .components { add(SvgDecoder.Factory()) }
-        .build()
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        AsyncImage(
-            model = team.flag_url,
-            contentDescription = "Bandeira do ${team.name}",
-            imageLoader = imageLoader,
-            modifier = Modifier.size(40.dp)
-        )
-
-        Spacer(modifier = Modifier.size(16.dp))
-        
-        Text(
-            text = team.name,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
-        )
     }
 }

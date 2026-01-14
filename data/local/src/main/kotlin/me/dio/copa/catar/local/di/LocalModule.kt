@@ -14,6 +14,7 @@ import me.dio.copa.catar.domain.source.BettingDataSource
 import me.dio.copa.catar.domain.source.MatchesDataSource
 import me.dio.copa.catar.local.source.BettingDataSourceLocal
 import me.dio.copa.catar.local.source.MatchDataSourceLocal
+import me.dio.copa.catar.local.source.PreferencesManager
 import javax.inject.Singleton
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
@@ -36,4 +37,8 @@ object LocalProvidesModule {
     fun providesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.dataStore
     }
+
+    @Provides
+    @Singleton
+    fun providePreferencesManager(dataStore: DataStore<Preferences>) = PreferencesManager(dataStore)
 }
