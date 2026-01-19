@@ -3,8 +3,6 @@ package me.dio.copa.catar.features
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -17,7 +15,6 @@ import me.dio.copa.catar.ui.navigation.NavigationItem
 fun MainScreen() {
     val navController = rememberNavController()
     val viewModel: MainViewModel = hiltViewModel()
-    val state by viewModel.state.collectAsState()
 
     Scaffold(
         bottomBar = { AppBottomNavigation(navController = navController) }
@@ -31,13 +28,7 @@ fun MainScreen() {
                 HomeScreen(viewModel = viewModel)
             }
             composable(NavigationItem.Rounds.route) {
-                RoundsScreen(
-                    matches = state.matches,
-                    teams = state.teams,
-                    selectedRound = state.selectedRound,
-                    onSelectRound = viewModel::selectRound,
-                    onToggleNotification = viewModel::toggleNotification
-                )
+                RoundsScreen(onToggleNotification = viewModel::toggleNotification)
             }
             composable(NavigationItem.Betting.route) {
                 BettingScreen()

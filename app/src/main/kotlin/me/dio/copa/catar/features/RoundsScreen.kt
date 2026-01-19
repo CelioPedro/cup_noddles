@@ -19,11 +19,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FilterChip
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
@@ -47,12 +51,10 @@ typealias NotificationOnClick = (match: MatchDomain) -> Unit
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RoundsScreen(
-    matches: List<MatchDomain>,
-    teams: List<TeamDomain>,
-    selectedRound: Int,
-    onSelectRound: (Int) -> Unit,
+    viewModel: RoundsViewModel = hiltViewModel(),
     onToggleNotification: NotificationOnClick
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val rounds = listOf(
         "Rodada 1", "Rodada 2", "Rodada 3", "16 avos",
         "Oitavas", "Quartas", "Semi", "Final"
@@ -79,8 +81,8 @@ fun RoundsScreen(
                 items(rounds) { round ->
                     val roundNumber = rounds.indexOf(round) + 1
                     FilterChip(
-                        selected = selectedRound == roundNumber,
-                        onClick = { onSelectRound(roundNumber) },
+                        selected = uiState.selectedRound == roundNumber,
+                        onClick = { viewModel.selectRound(roundNumber) },
                     ) {
                         Text(text = round)
                     }
@@ -89,12 +91,30 @@ fun RoundsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(matches) { match ->
-                    val team1 = teams.find { it.id == match.team1_id } ?: unknownTeam
-                    val team2 = teams.find { it.id == match.team2_id } ?: unknownTeam
+            if (uiState.matches.isEmpty() && uiState.error == null) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (uiState.error != null) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = uiState.error ?: "Ocorreu um erro")
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(uiState.matches) { match ->
+                        val team1 = uiState.teams.find { it.id == match.team1_id } ?: unknownTeam
+                        val team2 = uiState.teams.find { it.id == match.team2_id } ?: unknownTeam
 
-                    MatchInfo(match, team1, team2, onToggleNotification)
+                        MatchInfo(match, team1, team2, onToggleNotification)
+                    }
                 }
             }
         }
